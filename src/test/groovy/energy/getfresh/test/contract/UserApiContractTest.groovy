@@ -1,5 +1,8 @@
 package energy.getfresh.test.contract
 
+import energy.getfresh.test.contract.testapp.FreshApiContractTestApplication
+import energy.getfresh.test.contract.testapp.UserRepository
+import energy.getfresh.test.contract.testapp.User
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,13 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat
 @RunWith(SpringRunner)
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    classes = FooApp
+    classes = FreshApiContractTestApplication
 )
 class FooApiContractTest {
 
   @Inject @Rule public TestContext context
 
-  @Inject FooRepository fooRepository
+  @Inject UserRepository fooRepository
 
   @Test
   void 'POST /customers with valid customer data: should write customer in DB'() {
@@ -115,7 +118,7 @@ class FooApiContractTest {
     // given
     // db state
     def foo = context.populate(
-        new Foo( // convenient way of populating DB state with Groovy
+        new User( // convenient way of populating DB state with Groovy
             bar: 'buzz'
         )
     )
