@@ -133,3 +133,12 @@ That's it. You can inject `ApiContext` rule from now on in your tests:
   @Rule
   public ApiContext api
 ```
+
+## IntelliJ
+
+Be sure to install:
+
+http://plugins.jetbrains.com/plugin/7442-gmavenplus-intellij-plugin
+
+Otherwise you will have to mark [Groovy Test Folder](src/test/groovy)
+manually as `Test Sources Root`.
