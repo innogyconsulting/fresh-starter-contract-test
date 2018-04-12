@@ -27,7 +27,7 @@
 
   <groupId>energy.getfresh.test</groupId>
   <artifactId>fresh-starter-contract-test</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -138,6 +138,11 @@
             <include>**/*Test*.*</include><!-- will include also groovy tests -->
           </includes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
       </plugin>
     </plugins>
   </build>
