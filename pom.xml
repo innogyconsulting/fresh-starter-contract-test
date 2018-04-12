@@ -144,4 +144,10 @@
     </plugins>
   </build>
 
+  <scm>
+    <url>https://github.com/innogyconsulting/fresh-starter-contract-test</url>
+    <connection>scm:git:git@github.com:innogyconsulting/fresh-starter-contract-test</connection>
+    <developerConnection>scm:git:git@github.com:innogyconsulting/fresh-starter-contract-test</developerConnection>
+  </scm>
+
 </project>
