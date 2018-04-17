@@ -16,6 +16,8 @@
 
 package energy.getfresh.test.contract;
 
+import java.util.Objects;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -23,8 +25,6 @@ import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
-
-import java.util.Objects;
 
 /**
  * Hamcrest {@link Matcher} operating on logical JSON structure analyzed by {@link JSONCompare}.
@@ -72,6 +72,10 @@ public class JsonMatcher extends TypeSafeDiagnosingMatcher<String> {
 
   public static Matcher<String> jsonEquals(String expected) {
     return new JsonMatcher(expected, JSONCompareMode.STRICT);
+  }
+
+  public static Matcher<String> jsonEquals(JSONCompareMode compareMode, String expected) {
+    return new JsonMatcher(expected, compareMode);
   }
 
 }

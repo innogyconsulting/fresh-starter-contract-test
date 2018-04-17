@@ -62,6 +62,50 @@ public class JsonMatcherTest {
   }
 
   @Test
+  public void matches_equalJsonsWithReorderedArrayAndNotMatchingForOrder_shouldMatch() {
+    // given
+    String expected = "{\"foo\": [42, 43]}";
+    String actual = "{\"foo\": [43, 42]}";
+    Matcher<String> matcher = new JsonMatcher(expected, JSONCompareMode.NON_EXTENSIBLE);
+
+    // when
+    boolean matches = matcher.matches(actual);
+
+    // then
+    assertThat(matches).isTrue();
+  }
+
+  @Test
+  public void matches_equalJsonsWithReorderedArrayAndMatchingForOrder_shouldNotMatch() {
+    // given
+    String expected = "{\"foo\": [42, 43]}";
+    String actual = "{\"foo\": [43, 42]}";
+    Matcher<String> matcher = new JsonMatcher(expected, MODE);
+
+    // when
+    boolean matches = matcher.matches(actual);
+
+    // then
+    assertThat(matches).isFalse();
+    Description matcherDescription = new StringDescription();
+    matcher.describeTo(matcherDescription);
+    assertThat(matcherDescription.toString()).isEqualTo(expected);
+    Description mismatchDescription = new StringDescription();
+    matcher.describeMismatch(actual, mismatchDescription);
+    assertThat(mismatchDescription.toString()).isEqualTo(
+        "JSONs differ: \n" +
+            "foo[0]\n" +
+            "Expected: 42\n" +
+            "     got: 43\n" +
+            " ; foo[1]\n" +
+            "Expected: 43\n" +
+            "     got: 42\n" +
+            "\n" +
+            "Full JSON was:\n" +
+            "{\"foo\": [43, 42]}");
+  }
+
+  @Test
   public void matches_nonEqualJsons_shouldNotMatchAndDescribeError() {
     // given
     String expected =
