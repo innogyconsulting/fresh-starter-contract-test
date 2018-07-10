@@ -21,6 +21,7 @@ import io.restassured.RestAssured;
 import io.restassured.config.MatcherConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class RestAssuredInitializer {
   private final int port;
 
   @Inject
-  public RestAssuredInitializer(@LocalServerPort int port) {
+  public RestAssuredInitializer(@Value("${local.server.port}") int port) {
     this.port = port;
   }
 

@@ -22,8 +22,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +44,7 @@ public class ApiContext extends ExternalResource {
 
   @Inject
   public ApiContext(
-      @LocalServerPort int port,
+      @Value("${local.server.port}") int port,
       RestAssuredInitializer initializer, // not used, just ensures dependency order
       TestEntities testEntities
   ) {
