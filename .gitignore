@@ -1,6 +1,6 @@
-/.idea
+
 /*.iml
-!/.idea/copyright
+/.idea/
 /target/
 pom.xml.tag
 pom.xml.releaseBackup

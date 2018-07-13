@@ -16,18 +16,25 @@
 
 package energy.getfresh.test.contract;
 
+import energy.getfresh.test.contract.db.DbCleaner;
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.path.json.JsonPath;
+import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
+import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.regex.Pattern;
 
 /**
  * JUnit {@link Rule} managing context of each API contract test case separately.
@@ -38,18 +45,20 @@ import javax.inject.Inject;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE) // prototype will ensure that we are always injecting a new instance
 public class ApiContext extends ExternalResource {
 
+  private RequestSpecification requestSpecification;
+
   private final int port;
 
-  private final TestEntities testEntities;
+  private final DbCleaner dbCleaner;
 
   @Inject
   public ApiContext(
       @Value("${local.server.port}") int port,
       RestAssuredInitializer initializer, // not used, just ensures dependency order
-      TestEntities testEntities
+      DbCleaner dbCleaner
   ) {
     this.port = port;
-    this.testEntities = testEntities;
+    this.dbCleaner = dbCleaner;
   }
 
   public int getPort() {
@@ -75,13 +84,66 @@ public class ApiContext extends ExternalResource {
     };
   }
 
-  public <T> T getPersistedEntity() {
-    return (T) testEntities.getLatestEntity();
+  @Override
+  protected void after() {
+    dbCleaner.truncateAllTables();
+  }
+
+
+
+  @Inject
+  public ApiTester(
+      @Value("${fresh.contractTest.apiUrlBase}") String apiUrlBase,
+      DbCleaner dbCleaner) {
+
+    this.apiUrlBase = apiUrlBase;
+    this.dbCleaner = dbCleaner;
   }
 
   @Override
-  protected void after() {
-    testEntities.clean();
+  public Statement apply(Statement base, org.junit.runner.Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          doEvaluate(base, description);
+        } finally {
+          dbCleaner.truncateAllData();
+        }
+      }
+    };
+  }
+
+  private void doEvaluate(Statement base, org.junit.runner.Description description) throws Throwable {
+    JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
+    OperationPreprocessor apiUrlReplacer = replacePattern(LOCAL_HOST_PATTERN, apiUrlBase);
+    requestSpecification = new RequestSpecBuilder().addFilter(
+        RestAssuredRestDocumentation
+            .documentationConfiguration(restDocumentation)
+            .operationPreprocessors()
+            .withRequestDefaults(
+                apiUrlReplacer,
+                // TODO "Host" header was not removed
+                removeHeaders("Host", "Content-Length"),
+                new RequestUriReplacingOperationPreprocessor(
+                    LOCAL_HOST_PATTERN, apiUrlBase
+                ),
+                prettyPrint()
+            )
+            .withResponseDefaults(
+                apiUrlReplacer,
+                new HeaderContentReplacingOperationPreprocessor(
+                    "Location", LOCAL_HOST_PATTERN, apiUrlBase
+                ),
+                prettyPrint()
+            )
+    ).build();
+    restDocumentation.apply(base, description).evaluate();
+  }
+
+  @Transactional(readOnly = true)
+  public void thenInDb(Runnable call) {
+    call.run();
   }
 
 }
